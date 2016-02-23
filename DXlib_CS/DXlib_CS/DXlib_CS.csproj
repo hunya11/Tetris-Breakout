@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3F6CE6B8-BF9E-49AF-9044-9789AFE5E784}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DXlib_CS</RootNamespace>
+    <AssemblyName>DXlib_CS</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="src\Color.cs" />
+    <Compile Include="src\Comp\DrawComp\DrawableComponent.cs" />
+    <Compile Include="src\Comp\Component.cs" />
+    <Compile Include="src\Comp\DrawComp\Image\DxImage.cs" />
+    <Compile Include="src\Comp\DrawComp\Image\ImageBox.cs" />
+    <Compile Include="src\Comp\DrawComp\Image\ImageCircle.cs" />
+    <Compile Include="src\Comp\DrawComp\Image\ImageObject.cs" />
+    <Compile Include="src\Comp\DrawComp\Object\Ball.cs" />
+    <Compile Include="src\Comp\DrawComp\Object\Bar.cs" />
+    <Compile Include="src\Comp\DrawComp\Object\Block.cs" />
+    <Compile Include="src\Comp\DrawComp\Object\Effect\EffectBreakBlock.cs" />
+    <Compile Include="src\Comp\DrawComp\Object\GameObject.cs" />
+    <Compile Include="src\Comp\DrawComp\Pages\PageGame.cs" />
+    <Compile Include="src\Comp\DrawComp\Pages\PageTitle.cs" />
+    <Compile Include="src\Comp\Tetrimino.cs" />
+    <Compile Include="src\DxDLL.cs" />
+    <Compile Include="src\FPSTimer.cs" />
+    <Compile Include="src\Frame.cs" />
+    <Compile Include="src\Comp\Key.cs" />
+    <Compile Include="src\Hit.cs" />
+    <Compile Include="src\main.cs" />
+    <Compile Include="src\Comp\DrawComp\Pages\Page.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
