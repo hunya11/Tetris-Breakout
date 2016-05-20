@@ -294,7 +294,6 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages
                 bar.UpData();
 
                 if(ball.Reflection(bar)) {
-                    Difficulty.DifficultyLevel++;
                     SetBallDiffeculty();
                 }
                 ball.Reflection(block);
