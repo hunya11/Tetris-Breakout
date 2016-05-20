@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\Color.cs" />
+    <Compile Include="src\Comp\DifficultyAI.cs" />
     <Compile Include="src\Comp\DrawComp\DrawableComponent.cs" />
     <Compile Include="src\Comp\Component.cs" />
     <Compile Include="src\Comp\DrawComp\Image\DxImage.cs" />
@@ -53,11 +54,13 @@
     <Compile Include="src\Comp\DrawComp\Pages\PageGame.cs" />
     <Compile Include="src\Comp\DrawComp\Pages\PageTitle.cs" />
     <Compile Include="src\Comp\Tetrimino.cs" />
+    <Compile Include="src\Difficulty.cs" />
     <Compile Include="src\DxDLL.cs" />
     <Compile Include="src\FPSTimer.cs" />
     <Compile Include="src\Frame.cs" />
     <Compile Include="src\Comp\Key.cs" />
     <Compile Include="src\Hit.cs" />
+    <Compile Include="src\IniFileHandler.cs" />
     <Compile Include="src\main.cs" />
     <Compile Include="src\Comp\DrawComp\Pages\Page.cs" />
   </ItemGroup>

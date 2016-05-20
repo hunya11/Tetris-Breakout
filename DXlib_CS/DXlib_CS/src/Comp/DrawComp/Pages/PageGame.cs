@@ -148,6 +148,12 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages
 
             base.Init();
             this.LoadResource();
+
+
+            //難易度
+            Difficulty.Init();
+
+
             
             /*ブロック関係*/
             double blockSize = 35;
@@ -222,12 +228,16 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages
             /*たま*/
             {
                 DxImage image = new ImageCircle(blockSize / 2.5 , new Color(255 , 255 , 0) , new Color(0 , 0 , 0) , 2);
-                ball = new Ball(512 , 70 , image , 225 , 8);
+                ball = new Ball(512 , 70 , image , 225 , Difficulty.BallPower);
                 ball.MinX = 337;
                 ball.MaxX = 687;
                 ball.MaxY = 768;
 
             }
+
+
+            //AI
+            DifficultyAI.Init();
 
         }
 
@@ -246,15 +256,24 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages
 
                 if(keys.Pressed(DX.KEY_INPUT_LEFT)) {
                     isMinoMoveLeft = true;
+                    //仮
+                    DifficultyAI.MinoStress += 1;
                 }
                 if(keys.Pressed(DX.KEY_INPUT_RIGHT)) {
                     isMinoMoveRight = true;
+                    //仮
+                    DifficultyAI.MinoStress += 1;
                 }
                 if(keys.Pressed(DX.KEY_INPUT_UP)) {
                     isMinoSpin = true;
+                    //仮
+                    DifficultyAI.MinoStress+=2;
                 }
                 if(keys.Pressed(DX.KEY_INPUT_DOWN)) {
                     isMinoQuickDrop = true;
+                    //仮
+                    DifficultyAI.MinoStress -= 3;
+
                 }
                 if(keys.Pressing(DX.KEY_INPUT_A)) {
                     isBarMoveLeft = true;
@@ -274,7 +293,10 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages
 
                 bar.UpData();
 
-                ball.Reflection(bar);
+                if(ball.Reflection(bar)) {
+                    Difficulty.DifficultyLevel++;
+                    SetBallDiffeculty();
+                }
                 ball.Reflection(block);
 
                 for(int blockY = 0 ; blockY < maxBlockY ; blockY++) {
@@ -431,6 +453,10 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages
                 if(isMinoGeneration == true) {
                     isMinoQuickDrop = false;
                     isMinoGenerationFail = !minoGeneration();
+
+                    //ミノの生成後に難易度の調整
+                    SetMinoDiffeculty();
+
                 }
 
 
@@ -488,6 +514,10 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages
 
             //////////////////////////////////////////////////
 
+
+            DifficultyAI.UpData();
+
+
             //escでめにゅー
             if (keys.Pressed(DX.KEY_INPUT_ESCAPE)){
                 pageState = (int)Page.State.TITLE;
@@ -504,6 +534,9 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages
             //DX.DrawString(0 , 45 , "mouseX:" + mouseX , DX.GetColor(255 , 255 , 0));
             //DX.DrawString(0 , 60 , "mouseY:" + mouseY , DX.GetColor(255 , 255 , 0));
 
+            DX.DrawString(700 , 500 , "stress:" + DifficultyAI.MinoStress , DX.GetColor(255 , 255 , 0));
+            DX.DrawString(700 , 520 , "stressLevel:" + DifficultyAI.MinoDifficulty , DX.GetColor(255 , 255 , 0));
+            
             DX.DrawStringToHandle(15 , 45 , "*Control" , DX.GetColor(255 , 255 , 0) , fontHandleHowToUse);
 
             DX.DrawStringToHandle(15 , 90 , " Breakout" , DX.GetColor(255 , 255 , 0) , fontHandleHowToUse);
@@ -1237,7 +1270,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages
         /// <returns>true:ミノの生成に成功,false:ミノの生成に失敗</returns>
         private bool minoGeneration(Tetrimino.Type type) {
             int nextMinoType = (int)type;
-            
+
             return minoGeneration(nextMinoType);
         }
 
@@ -1249,9 +1282,28 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages
         private bool minoGeneration() {
             int nextMinoType = rand.Next(7);
 
+
             return minoGeneration(nextMinoType);        
         }
-        
+
+        /// <summary>
+        /// ミノの難易度（落下速度）の調整
+        /// 設定された難易度レベル（Difficulty.DifficultyLevel）に基づいて調整が行われる
+        /// </summary>
+        private void SetMinoDiffeculty() {
+            for(int i = 0 ; i < mino.Length ; i++) {
+                mino[i].DropWaitTime = Difficulty.MinoDropWaitTime;
+                mino[i].PlayWaitTime = Difficulty.MinoPlayWaitTime;
+            }          
+        }
+
+        /// <summary>
+        /// ボールの難易度（移動速度）の調整
+        /// 設定された難易度レベル（Difficulty.DifficultyLevel）に基づいて調整が行われる
+        /// </summary>
+        private void SetBallDiffeculty() {
+            ball.Power = Difficulty.BallPower;
+        }
 
     }
 }
