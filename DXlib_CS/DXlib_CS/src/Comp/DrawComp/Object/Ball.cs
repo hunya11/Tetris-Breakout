@@ -66,6 +66,14 @@ namespace DXlib_CS.src.Comp.DrawComp.Object {
         }
 
         private double power;
+        public double Power {
+            get {
+                return power;
+            }
+            set {
+                power = value;
+            }
+        }
 
 
 
@@ -108,10 +116,11 @@ namespace DXlib_CS.src.Comp.DrawComp.Object {
         }
 
         /// <summary>
-        /// 棒とたまの反射処理
+        /// ぼうと玉の反射処理
         /// </summary>
         /// <param name="bar"></param>
-        public void Reflection(GameObject bar) {
+        /// <returns>true:あたった,false:はずれた</returns>
+        public bool Reflection(GameObject bar) {
 
             
             if(Hit.CheckBoxToCircle(bar.Image , this.image) == true) {
@@ -146,18 +155,35 @@ namespace DXlib_CS.src.Comp.DrawComp.Object {
                     //defaultAngle = (180 + tempAngle) * (1 - pow) + (180 * pow);
                     angle = defaultAngle - 90;
                 }
- 
 
+
+                //AI
+                //中心からどれだけ離れているか
+                //離れているほどストレス値追加
+                double angleAbs = System.Math.Abs(angle - 90);
+                if(angleAbs > 15) {
+                    DifficultyAI.BallStress += 4;
+                } else {
+                    DifficultyAI.BallStress -= 1;
+                }
+
+
+
+                return true;
                 
             }
 
+            return false;
         }
 
         /// <summary>
         /// 棒とブロックと壁の反射処理
         /// </summary>
         /// <param name="block"></param>
-        public void Reflection(GameObject[,] block) {
+        /// <returns>true:あたった,false:はずれた</returns>
+        public bool Reflection(GameObject[,] block) {
+
+            bool isHitSometing = false;
 
             /*かべ*/
             if(this.PosX - image.Radius < minX) {
@@ -165,10 +191,12 @@ namespace DXlib_CS.src.Comp.DrawComp.Object {
                     double tempAngle = defaultAngle - 180;
                     defaultAngle = 180 - tempAngle;
                     angle = defaultAngle - 90;
+                    isHitSometing = true;
                 } else if(defaultAngle >= 270 && defaultAngle <360) {
                     double tempAngle = 360 - defaultAngle;
                     defaultAngle = 0 + tempAngle;
                     angle = defaultAngle - 90;
+                    isHitSometing = true;
                 }
             }
             if(this.PosX + image.Radius > maxX) {
@@ -176,10 +204,12 @@ namespace DXlib_CS.src.Comp.DrawComp.Object {
                     double tempAngle = 180 - defaultAngle;
                     defaultAngle = 180 + tempAngle;
                     angle = defaultAngle - 90;
+                    isHitSometing = true;
                 } else if(defaultAngle >= 0 && defaultAngle < 90) {
                     double tempAngle = defaultAngle - 0;
                     defaultAngle = 360 - tempAngle;
                     angle = defaultAngle - 90;
+                    isHitSometing = true;
                 }
             }
             if(this.PosY + image.Radius > maxY) {
@@ -187,10 +217,12 @@ namespace DXlib_CS.src.Comp.DrawComp.Object {
                     double tempAngle = defaultAngle - 90;
                     defaultAngle = 90 - tempAngle;
                     angle = defaultAngle - 90;
+                    isHitSometing = true;
                 } else if(defaultAngle >= 180 && defaultAngle < 270) {
                     double tempAngle = 270 - defaultAngle;
                     defaultAngle = 270 + tempAngle;
                     angle = defaultAngle - 90;
+                    isHitSometing = true;
                 }
             }
 
@@ -283,11 +315,15 @@ namespace DXlib_CS.src.Comp.DrawComp.Object {
                                 angle = defaultAngle - 90;
                             }
                         }
-                    }
-                        
+
+                        isHitSometing = true;
+
+                    }                        
 
                 }
             }
+
+            return isHitSometing;
 
         }
         

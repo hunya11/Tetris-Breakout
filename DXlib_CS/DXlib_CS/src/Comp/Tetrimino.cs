@@ -31,7 +31,8 @@ namespace DXlib_CS.src.Comp {
         private double previousPlayTime;
         private double currentPlayTime;
         double playWaitTime;
-        
+
+
 
         private bool isQuickDrop;
         private double previousQuickDropTime;
@@ -83,6 +84,16 @@ namespace DXlib_CS.src.Comp {
             }
         }
 
+        public double PlayWaitTime {
+            get {
+                return playWaitTime;
+            }
+            set {
+                playWaitTime = value;
+            }
+        }
+        
+
         public bool IsCanPlay {
             get {
                 return isCanPlay;
@@ -120,8 +131,8 @@ namespace DXlib_CS.src.Comp {
             currentPlayTime = minoTimer.Elapsed.TotalSeconds;
             previousQuickDropTime = minoTimer.Elapsed.TotalSeconds;
             currentQuickDropTime = minoTimer.Elapsed.TotalSeconds;
-            dropWaitTime = 0.25;
-            playWaitTime = dropWaitTime + 0.2;
+            dropWaitTime = Difficulty.MinoDropWaitTime;
+            playWaitTime = Difficulty.MinoPlayWaitTime;
             QuickDropWaitTime = 0.01;
         }
 
@@ -142,6 +153,11 @@ namespace DXlib_CS.src.Comp {
                     //doubleの引き算だから有効桁数下がるかも
                     if(currentDropTime - previousDropTime > dropWaitTime) {
                         cellPosY++;
+
+                        //AI
+                        //1マス落ちるたびにストレス値追加
+                        DifficultyAI.MinoStress += 0.25;
+
                         previousDropTime = currentDropTime;
                     }
                     currentDropTime = minoTimer.Elapsed.TotalSeconds;

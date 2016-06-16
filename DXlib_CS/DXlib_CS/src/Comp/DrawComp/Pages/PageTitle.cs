@@ -14,9 +14,9 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
             set {
                 posSelectMenu = value;
                 if(this.posSelectMenu < 0) {
-                    posSelectMenu = 1;
+                    posSelectMenu = 2;
                 }
-                if(this.posSelectMenu > 1) {
+                if(this.posSelectMenu > 2) {
                     posSelectMenu = 0;
                 }
             }
@@ -67,6 +67,9 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                         pageState = (int)Page.State.GAME;
                         break;
                     case 1:
+                        pageState = (int)Page.State.AI;
+                        break;
+                    case 2:
                         pageState = (int)Page.State.END;
                         break;
                 }
@@ -116,9 +119,10 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
 
 
             //menu関連/////////////////////////////////////////
-            DX.DrawStringToHandle(Frame.WindowSizeX - 135 , Frame.WindowSizeY - 75 + 25 * this.PosSelectMenu , "＞" , DX.GetColor(255 , 255 , 0), fontHandleHowToUse);
-            DX.DrawStringToHandle(Frame.WindowSizeX - 100 , Frame.WindowSizeY - 75 , "Start" , DX.GetColor(255 , 255 , 0), fontHandleHowToUse);
-            DX.DrawStringToHandle(Frame.WindowSizeX - 100 , Frame.WindowSizeY - 45 , "End" , DX.GetColor(255 , 255 , 0), fontHandleHowToUse);
+            DX.DrawStringToHandle(Frame.WindowSizeX - 200 , Frame.WindowSizeY - 100 + 25 * this.PosSelectMenu , "＞" , DX.GetColor(255 , 255 , 0), fontHandleHowToUse);
+            DX.DrawStringToHandle(Frame.WindowSizeX - 165 , Frame.WindowSizeY - 100 , "Start" , DX.GetColor(255 , 255 , 0), fontHandleHowToUse);
+            DX.DrawStringToHandle(Frame.WindowSizeX - 165 , Frame.WindowSizeY - 70 , "Training" , DX.GetColor(255 , 255 , 0) , fontHandleHowToUse);
+            DX.DrawStringToHandle(Frame.WindowSizeX - 165 , Frame.WindowSizeY - 40 , "End" , DX.GetColor(255 , 255 , 0), fontHandleHowToUse);
             //////////////////////////////////////////////////
         }
 
