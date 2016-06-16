@@ -51,6 +51,7 @@
     <Compile Include="src\Comp\DrawComp\Object\Block.cs" />
     <Compile Include="src\Comp\DrawComp\Object\Effect\EffectBreakBlock.cs" />
     <Compile Include="src\Comp\DrawComp\Object\GameObject.cs" />
+    <Compile Include="src\Comp\DrawComp\Pages\PageAImode.cs" />
     <Compile Include="src\Comp\DrawComp\Pages\PageGame.cs" />
     <Compile Include="src\Comp\DrawComp\Pages\PageTitle.cs" />
     <Compile Include="src\Comp\Tetrimino.cs" />

@@ -82,6 +82,10 @@ namespace DXlib_CS.src {
                             this.page = new PageGame();
                             this.page.Init();
                             break;
+                        case (int)Page.State.AI:
+                            this.page = new PageAImode();
+                            this.page.Init();
+                            break;
                         case (int)Page.State.END:
                             isEnd = true;
                             break;

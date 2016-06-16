@@ -7,46 +7,68 @@ using System.Threading.Tasks;
 namespace DXlib_CS.src {
     static class Difficulty {
 
-        private static int difficultyLevel;
-        public static int DifficultyLevel {
+        private static int minoDifficultyLevel;
+        /// <summary>
+        /// テトリス（ミノ）の難易度
+        /// </summary>
+        public static int MinoDifficultyLevel {
             get {
-                return Difficulty.difficultyLevel;
+                return Difficulty.minoDifficultyLevel;
             }
             set {
                 if(value >= 0 && value < minoDropWaitTime.Length) {
-                    Difficulty.difficultyLevel = value;
+                    Difficulty.minoDifficultyLevel = value;
                 }
             }
         }
 
 
+
+        private static int ballDifficultyLevel;
+        /// <summary>
+        /// ブロック崩し（ボール）の難易度
+        /// </summary>
+        public static int BallDifficultyLevel {
+            get {
+                return Difficulty.ballDifficultyLevel;
+            }
+            set {
+                if(value >= 0 && value < ballPower.Length) {
+                    Difficulty.ballDifficultyLevel = value;
+                }
+            }
+        }
+
+
+
+        private static double[] minoDropWaitTime;
         /// <summary>
         /// ミノの落下時間
         /// </summary>
-        private static double[] minoDropWaitTime;
         public static double MinoDropWaitTime {
             get {
-                return Difficulty.minoDropWaitTime[DifficultyLevel];
+                return Difficulty.minoDropWaitTime[MinoDifficultyLevel];
             }
         }
 
+
+        private static double[] minoPlayWaitTime;
         /// <summary>
         /// ミノが固定されるまでの遊び時間
         /// </summary>
-        private static double[] minoPlayWaitTime;
         public static double MinoPlayWaitTime {
             get {
-                return Difficulty.minoPlayWaitTime[DifficultyLevel];
+                return Difficulty.minoPlayWaitTime[MinoDifficultyLevel];
             }
         }
 
+        private static double[] ballPower;
         /// <summary>
         /// ボールのスピード
         /// </summary>
-        private static double[] ballPower;
         public static double BallPower {
             get {
-                return Difficulty.ballPower[DifficultyLevel];
+                return Difficulty.ballPower[BallDifficultyLevel];
             }
         }
 
@@ -67,7 +89,8 @@ namespace DXlib_CS.src {
         }
 
         public static void Init() {
-            difficultyLevel = 0;
+            minoDifficultyLevel = 0;
+            ballDifficultyLevel = 0;
 
         }
     }

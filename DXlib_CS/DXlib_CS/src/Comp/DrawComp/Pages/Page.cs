@@ -32,7 +32,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
 
 
         public enum State:int {
-            END = -1, TITLE, GAME
+            END = -1, TITLE, GAME,AI
 
         };
         

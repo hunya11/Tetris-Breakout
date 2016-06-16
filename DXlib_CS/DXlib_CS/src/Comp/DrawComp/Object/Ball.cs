@@ -156,6 +156,19 @@ namespace DXlib_CS.src.Comp.DrawComp.Object {
                     angle = defaultAngle - 90;
                 }
 
+
+                //AI
+                //中心からどれだけ離れているか
+                //離れているほどストレス値追加
+                double angleAbs = System.Math.Abs(angle - 90);
+                if(angleAbs > 15) {
+                    DifficultyAI.BallStress += 4;
+                } else {
+                    DifficultyAI.BallStress -= 1;
+                }
+
+
+
                 return true;
                 
             }

@@ -10,8 +10,10 @@ using DXlib_CS.src.Comp.DrawComp.Image;
 using DXlib_CS.src.Comp.DrawComp.Object;
 using DXlib_CS.src.Comp.DrawComp.Object.Effect;
 
-namespace DXlib_CS.src.Comp.DrawComp.Pages {
-    class PageGame : Page {
+namespace DXlib_CS.src.Comp.DrawComp.Pages
+{
+    class PageAImode : Page
+    {
 
         /// <summary>
         /// ブロック崩しの棒
@@ -132,13 +134,13 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
         /// エフェクト表示
         /// </summary>
         List<EffectBreakBlock> effectBlock;
+        
 
-
-        public PageGame() {
+        public PageAImode(){
 
         }
 
-        ~PageGame() {
+        ~PageAImode(){
 
         }
 
@@ -147,10 +149,16 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
             base.Init();
             this.LoadResource();
 
+
+            //難易度
+            Difficulty.Init();
+
+
+            
             /*ブロック関係*/
             double blockSize = 35;
 
-            block = new Block[maxBlockY, maxBlockX];
+            block = new Block[maxBlockY , maxBlockX];
             for(int y = 0 ; y < maxBlockY ; y++) {
                 for(int x = 0 ; x < maxBlockX ; x++) {
                     DxImage image;
@@ -169,7 +177,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
 
 
             /*背景*/
-            back = new ImageBox(512 , 768 / 2 , blockSize * maxBlockX , 768 , new Color(255 , 255 , 255) , new Color(0 , 0 , 0) , 1);
+            back = new ImageBox(512, 768 / 2, blockSize * maxBlockX , 768 , new Color(255 , 255 , 255) , new Color(0 , 0 , 0) , 1);
 
 
             /*ミノ*/
@@ -209,8 +217,8 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
 
             /*棒*/
             {
-                DxImage image = new ImageBox(blockSize * 3.0 , blockSize * 0.7 , new Color(255 , 255 , 255) , new Color(0 , 0 , 0) , 2);
-                bar = new Bar(512 , 30 , image , 337 , 687);
+                DxImage image = new ImageBox(blockSize*3.0 , blockSize*0.7 , new Color(255 , 255 , 255) , new Color(0 , 0 , 0) , 2);               
+                bar = new Bar(512,30,image,337,687);
 
                 isBarMoveLeft = false;
                 isBarMoveRight = false;
@@ -220,16 +228,20 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
             /*たま*/
             {
                 DxImage image = new ImageCircle(blockSize / 2.5 , new Color(255 , 255 , 0) , new Color(0 , 0 , 0) , 2);
-                ball = new Ball(512 , 70 , image , 225 , 8);
+                ball = new Ball(512 , 70 , image , 225 , Difficulty.BallPower);
                 ball.MinX = 337;
                 ball.MaxX = 687;
                 ball.MaxY = 768;
 
             }
 
+
+            //AI
+            DifficultyAI.Init();
+
         }
 
-        public override void UpData() {
+        public override void UpData(){
             base.UpData();
 
             if(isGameOver == false) {
@@ -242,18 +254,31 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                 isBarMoveLeft = false;
                 isBarMoveRight = false;
 
-                if(keys.Pressed(DX.KEY_INPUT_LEFT)) {
-                    isMinoMoveLeft = true;
+                if(isMinoQuickDrop == false) {
+
+                    //AI
+                    //動かすたびにストレス値追加
+                    //クイックドロップするとストレス値減少（余裕がありそう）
+
+                    if(keys.Pressed(DX.KEY_INPUT_LEFT)) {
+                        isMinoMoveLeft = true;
+                        DifficultyAI.MinoStress += 1;
+                    }
+                    if(keys.Pressed(DX.KEY_INPUT_RIGHT)) {
+                        isMinoMoveRight = true;
+                        DifficultyAI.MinoStress += 1;
+                    }
+                    if(keys.Pressed(DX.KEY_INPUT_UP)) {
+                        isMinoSpin = true;
+                        DifficultyAI.MinoStress += 1;
+                    }
+                    if(keys.Pressed(DX.KEY_INPUT_DOWN)) {
+                        isMinoQuickDrop = true;
+                        DifficultyAI.MinoStress -= 3;
+
+                    }
                 }
-                if(keys.Pressed(DX.KEY_INPUT_RIGHT)) {
-                    isMinoMoveRight = true;
-                }
-                if(keys.Pressed(DX.KEY_INPUT_UP)) {
-                    isMinoSpin = true;
-                }
-                if(keys.Pressed(DX.KEY_INPUT_DOWN)) {
-                    isMinoQuickDrop = true;
-                }
+
                 if(keys.Pressing(DX.KEY_INPUT_A)) {
                     isBarMoveLeft = true;
                 }
@@ -263,16 +288,23 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
 
 
                 /*棒関係*/
+                //動かすたびにストレス値追加
                 if(isBarMoveLeft == true) {
                     bar.PosX -= barSpeed;
+                    DifficultyAI.BallStress += 0.2;
                 }
                 if(isBarMoveRight == true) {
                     bar.PosX += barSpeed;
+                    DifficultyAI.BallStress += 0.2;
                 }
 
                 bar.UpData();
 
-                ball.Reflection(bar);
+                //ボールとバーの反射処理
+                //反射したタイミングで難易度の調整が行われる
+                if(ball.Reflection(bar)) {
+                    SetBallDiffeculty();
+                }
                 ball.Reflection(block);
 
                 for(int blockY = 0 ; blockY < maxBlockY ; blockY++) {
@@ -289,7 +321,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                     }
                 }
 
-                if(Hit.CheckBoxToCircle(bar.Image , ball.Image) == true) {
+                if(Hit.CheckBoxToCircle(bar.Image, ball.Image) == true) {
                     comboBreakout = 0;
                 }
 
@@ -412,7 +444,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                 }
 
                 if(comboLine >= 1) {
-                    for(int i = 1 ; i < comboLine + 1 ; i++) {
+                    for(int i = 1 ; i < comboLine+1 ; i++) {
                         scoreTetris += 1500 * i;
                     }
                 }
@@ -429,6 +461,10 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                 if(isMinoGeneration == true) {
                     isMinoQuickDrop = false;
                     isMinoGenerationFail = !minoGeneration();
+
+                    //ミノの生成後に難易度の調整
+                    SetMinoDiffeculty();
+
                 }
 
 
@@ -450,13 +486,12 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                     if(block[y , x].IsCollision == false) {
                         block[y , x].Image.InsideColor = new Color(255 , 255 , 255);
                     }
-                    if(y == 0)
-                        block[y , x].Image.InsideColor = new Color(255 , 0 , 0);
+                    if(y == 0) block[y , x].Image.InsideColor = new Color(255 , 0 , 0);
                 }
             }
 
             for(int i = 0 ; i < ghostMino.Length ; i++) {
-                if(block[ghostMino[i].CellPosY , ghostMino[i].CellPosX].IsCollision == false) {
+                if(block[ghostMino[i].CellPosY , ghostMino[i].CellPosX].IsCollision == false) {                   
                     block[ghostMino[i].CellPosY , ghostMino[i].CellPosX].Image.InsideColor = minoColor.Clone();
                     block[ghostMino[i].CellPosY , ghostMino[i].CellPosX].Image.InsideColor.Alpha = 225 / 2;
                 }
@@ -487,13 +522,17 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
 
             //////////////////////////////////////////////////
 
+
+            DifficultyAI.UpData();
+
+
             //escでめにゅー
-            if(keys.Pressed(DX.KEY_INPUT_ESCAPE)) {
+            if (keys.Pressed(DX.KEY_INPUT_ESCAPE)){
                 pageState = (int)Page.State.TITLE;
             }
         }
 
-        public override void Draw() {
+        public override void Draw(){
             //DX.DrawString(0 , 0 , "げーむ" , DX.GetColor(255 , 255 , 0));
             //DX.DrawString(0 , 15 , "globaltimer:"+globalTimer.Elapsed , DX.GetColor(255 , 255 , 0));
             //DX.DrawString(0 , 30 , "localtimer:" + localTimer.Elapsed , DX.GetColor(255 , 255 , 0));
@@ -502,6 +541,17 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
             //DX.GetMousePoint(out mouseX , out mouseY);
             //DX.DrawString(0 , 45 , "mouseX:" + mouseX , DX.GetColor(255 , 255 , 0));
             //DX.DrawString(0 , 60 , "mouseY:" + mouseY , DX.GetColor(255 , 255 , 0));
+
+            //DX.DrawString(700 , 500 , "*MinoStress:" + DifficultyAI.MinoStress , DX.GetColor(255 , 255 , 0));
+            //DX.DrawString(700 , 520 , " MinoStressAve:" + DifficultyAI.MinoStressAverage , DX.GetColor(255 , 255 , 0));
+            //DX.DrawString(700 , 540 , " MinoDifficultyLevel:" + Difficulty.MinoDifficultyLevel , DX.GetColor(255 , 255 , 0));
+            //DX.DrawString(700 , 560 , " MinoDropWaitTime:" + Difficulty.MinoDropWaitTime , DX.GetColor(255 , 255 , 0));
+            //DX.DrawString(700 , 580 , " MinoPlayWaitTime:" + Difficulty.MinoPlayWaitTime , DX.GetColor(255 , 255 , 0));
+
+            //DX.DrawString(700 , 600 , "*BallStress:" + DifficultyAI.BallStress , DX.GetColor(255 , 255 , 0));
+            //DX.DrawString(700 , 620 , " BallStressAve:" + DifficultyAI.BallStressAverage , DX.GetColor(255 , 255 , 0));
+            //DX.DrawString(700 , 640 , " BallDifficultyLevel:" + Difficulty.BallDifficultyLevel , DX.GetColor(255 , 255 , 0));
+            //DX.DrawString(700 , 660 , " BallPower:" + Difficulty.BallPower , DX.GetColor(255 , 255 , 0));
 
             DX.DrawStringToHandle(15 , 45 , "*Control" , DX.GetColor(255 , 255 , 0) , fontHandleHowToUse);
 
@@ -524,9 +574,9 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
 
 
 
-            DX.DrawStringToHandle(700 , 45 , "Tetris Score" , DX.GetColor(255 , 255 , 0) , fontHandleScore);
+            DX.DrawStringToHandle(700 , 45 , "Tetris Score" , DX.GetColor(255 , 255 , 0),fontHandleScore);
             DX.DrawStringToHandle(700 , 75 , "  :" + scoreTetris , DX.GetColor(255 , 255 , 0) , fontHandleScore);
-            DX.DrawStringToHandle(700 , 105 , " 1LINE =  1500 point" , DX.GetColor(255 , 255 , 0) , fontHandleScore);
+            DX.DrawStringToHandle(700 , 105 , " 1LINE =  1500 point", DX.GetColor(255 , 255 , 0) , fontHandleScore);
             DX.DrawStringToHandle(700 , 135 , " 2LINE =  4500 point" , DX.GetColor(255 , 255 , 0) , fontHandleScore);
             DX.DrawStringToHandle(700 , 165 , " 3LINE =  9000 point" , DX.GetColor(255 , 255 , 0) , fontHandleScore);
             DX.DrawStringToHandle(700 , 195 , " 4LINE = 15000 point" , DX.GetColor(255 , 255 , 0) , fontHandleScore);
@@ -534,12 +584,14 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
             DX.DrawStringToHandle(700 , 255 , "Breakout Score" , DX.GetColor(255 , 255 , 0) , fontHandleScore);
             DX.DrawStringToHandle(700 , 285 , "  :" + scoreBreakout , DX.GetColor(255 , 255 , 0) , fontHandleScore);
             DX.DrawStringToHandle(700 , 315 , " 1BLOCK = 100 * Combo" , DX.GetColor(255 , 255 , 0) , fontHandleScore);
-            DX.DrawStringToHandle(700 , 345 , "        = 100 * " + (comboBreakout + 1) , DX.GetColor(255 , 255 , 0) , fontHandleScore);
+            DX.DrawStringToHandle(700 , 345 , "        = 100 * " + (comboBreakout+1) , DX.GetColor(255 , 255 , 0) , fontHandleScore);
 
-            DX.DrawStringToHandle(700 , 400 , "Total Score" , DX.GetColor(255 , 255 , 0) , fontHandleScore);
+            DX.DrawStringToHandle(700 , 400 , "Total Score", DX.GetColor(255 , 255 , 0) , fontHandleScore);
             DX.DrawStringToHandle(700 , 435 , "  :" + (scoreBreakout + scoreTetris) , DX.GetColor(255 , 255 , 0) , fontHandleScore);
 
 
+            DX.DrawStringToHandle(700 , 490 , "MinoDifficultyLevel:" + Difficulty.MinoDifficultyLevel , DX.GetColor(255 , 255 , 0), fontHandleScore);
+            DX.DrawStringToHandle(700 , 525 , "BallDifficultyLevel:" + Difficulty.BallDifficultyLevel , DX.GetColor(255 , 255 , 0), fontHandleScore);
 
             back.Draw();
 
@@ -562,17 +614,17 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
             if(isGameOver == true) {
                 ImageBox ib = new ImageBox(1024 / 2 , 768 / 2 , 600 , 700 , new Color(255 , 255 , 255) , new Color(0 , 0 , 0) , 2);
                 ib.Draw();
-                DX.DrawStringToHandle(375 , 150 , "Gameover!" , DX.GetColor(255 , 0 , 0) , fontHandleGameOver);
+                DX.DrawStringToHandle(375 , 150, "Gameover!" , DX.GetColor(255 , 0 , 0) , fontHandleGameOver);
                 DX.DrawStringToHandle(370 , 150 + 64 , "Your score" , DX.GetColor(255 , 0 , 0) , fontHandleGameOver);
-                DX.DrawStringToHandle(480 , 150 + 64 * 2 , "is" , DX.GetColor(255 , 0 , 0) , fontHandleGameOver);
+                DX.DrawStringToHandle(480 , 150 + 64*2 , "is" , DX.GetColor(255 , 0 , 0) , fontHandleGameOver);
                 string str = "" + (scoreTetris + scoreBreakout);
-                int strLength = DX.GetDrawStringWidthToHandle(str , str.Length , fontHandleGameOverScore);
-                DX.DrawStringToHandle(1024 / 2 - strLength / 2 , 170 + 64 * 3 , str , DX.GetColor(255 , 0 , 0) , fontHandleGameOverScore);
+                int strLength = DX.GetDrawStringWidthToHandle(str, str.Length,fontHandleGameOverScore);
+                DX.DrawStringToHandle(1024 / 2 - strLength/2 , 170 + 64 * 3 , str , DX.GetColor(255 , 0 , 0) , fontHandleGameOverScore);
 
                 string eq = "";
                 if(scoreTetris == scoreBreakout) {
                     eq = "=";
-                } else if(scoreTetris > scoreBreakout) {
+                } else if(scoreTetris > scoreBreakout){
                     eq = ">";
                 } else {
                     eq = "<";
@@ -589,7 +641,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                 DX.DrawStringToHandle(350 , 700 , "Push [ESC]. Return Title." , DX.GetColor(255 , 0 , 0) , fontHandleScore);
             }
 
-
+            
         }
 
         public override void LoadResource() {
@@ -616,7 +668,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
             bool isCanSpin = true;
             switch(minoType) {
                 case (int)Tetrimino.Type.I:
-                    switch(NumMinoSpin % 2) {
+                    switch(NumMinoSpin % 2){
                         case 0:
                             spinPosX[0] = 0;
                             spinPosY[0] = 0;
@@ -776,7 +828,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                     break;
             }
 
-
+           
 
 
             //実際の座標に変換
@@ -790,7 +842,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                 spinPosX[i] += mino[i].CellPosX;
                 spinPosY[i] += mino[i].CellPosY;
             }
-
+            
 
             for(int i = 0 ; i < 4 ; i++) {
                 if(spinPosX[i] < 0) {
@@ -802,7 +854,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                     isCanSpin = false;
                     break;
                 }
-                if(spinPosY[i] < 0) {
+                if(spinPosY[i] < 0 ) {
                     // 縦に壁があったら回転できないように
                     isCanSpin = false;
                     break;
@@ -921,10 +973,10 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                         isCanSpin = true;
                     }
                 }
+                
 
-
-                //上下のどっちにシフト？
-                //小さい方にシフト
+            //上下のどっちにシフト？
+            //小さい方にシフト
                 if(shiftUp < shiftDown) {
                     //上に？
                     if(shiftUp < 3) {
@@ -943,7 +995,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
                         isCanSpin = true;
                     }
                 }
-
+                
 
                 if(isCanSpin == true) {
                     //ブロックを考慮したシフトが必要？
@@ -1219,7 +1271,7 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
             }
 
             for(int i = 0 ; i < mino.Length ; i++) {
-                if(block[mino[i].CellPosY , mino[i].CellPosX].IsCollision == true) {
+                if(block[mino[i].CellPosY,mino[i].CellPosX].IsCollision == true) {
                     return false;
                 }
             }
@@ -1248,9 +1300,28 @@ namespace DXlib_CS.src.Comp.DrawComp.Pages {
         private bool minoGeneration() {
             int nextMinoType = rand.Next(7);
 
-            return minoGeneration(nextMinoType);
+
+            return minoGeneration(nextMinoType);        
         }
 
+        /// <summary>
+        /// ミノの難易度（落下速度）の調整
+        /// 設定された難易度レベル（Difficulty.DifficultyLevel）に基づいて調整が行われる
+        /// </summary>
+        private void SetMinoDiffeculty() {
+            for(int i = 0 ; i < mino.Length ; i++) {
+                mino[i].DropWaitTime = Difficulty.MinoDropWaitTime;
+                mino[i].PlayWaitTime = Difficulty.MinoPlayWaitTime;
+            }          
+        }
+
+        /// <summary>
+        /// ボールの難易度（移動速度）の調整
+        /// 設定された難易度レベル（Difficulty.DifficultyLevel）に基づいて調整が行われる
+        /// </summary>
+        private void SetBallDiffeculty() {
+            ball.Power = Difficulty.BallPower;
+        }
 
     }
 }

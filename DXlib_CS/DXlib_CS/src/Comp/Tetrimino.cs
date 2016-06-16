@@ -153,6 +153,11 @@ namespace DXlib_CS.src.Comp {
                     //doubleの引き算だから有効桁数下がるかも
                     if(currentDropTime - previousDropTime > dropWaitTime) {
                         cellPosY++;
+
+                        //AI
+                        //1マス落ちるたびにストレス値追加
+                        DifficultyAI.MinoStress += 0.25;
+
                         previousDropTime = currentDropTime;
                     }
                     currentDropTime = minoTimer.Elapsed.TotalSeconds;
